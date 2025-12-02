@@ -140,8 +140,8 @@ function initPlyr() {
   container.innerHTML = `
     <div class="plyr__video-embed" id="plyrEmbed">
       <iframe
-        src="https://www.youtube-nocookie.com/embed/${currentVideoId}?controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&origin=${window.location.origin}"
-        allow="autoplay; encrypted-media"
+        src="https://www.youtube-nocookie.com/embed/${currentVideoId}?autoplay=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&origin=${window.location.origin}"
+        allow="autoplay; fullscreen; encrypted-media"
         allowfullscreen
         data-plyr-provider="youtube"
         data-plyr-embed-id="${currentVideoId}">
@@ -149,9 +149,6 @@ function initPlyr() {
     </div>
   `;
 
-  /* ------------------------------------------------------------------
-     Updated: Enabled Q̲U̲A̲L̲I̲T̲Y̲  O̲P̲T̲I̲O̲N̲S̲  + SPEED
-     ------------------------------------------------------------------ */
   plyrPlayer = new Plyr('#plyrEmbed', {
     controls: [
       'play',
@@ -159,27 +156,22 @@ function initPlyr() {
       'current-time',
       'mute',
       'volume',
-      'settings'
+      'settings',
+      'fullscreen'   // <-- enable fullscreen button
     ],
-
     settings: ['quality', 'speed'],
-
     speed: {
       selected: 1,
       options: [0.5, 0.75, 1, 1.25, 1.5, 2]
     },
-
-    /* Quality options (Plyr simulated menu for YouTube) */
     quality: {
       default: 1080,
       options: [144, 240, 360, 480, 720, 1080],
-      forced: true,           // force Plyr to use our menu
+      forced: true,
       onChange: (quality) => {
         try {
           let iframe = document.querySelector('#plyrEmbed iframe');
           let player = iframe.contentWindow;
-
-          // Send JS API command to YouTube
           player.postMessage(JSON.stringify({
             event: "command",
             func: "setPlaybackQuality",
@@ -190,12 +182,17 @@ function initPlyr() {
         }
       }
     },
-
     youtube: { noCookie: true }
+  });
+
+  // Start playback immediately
+  plyrPlayer.play().catch(() => {
+    console.warn("Autoplay might be blocked by browser.");
   });
 
   plyrPlayer.on('error', () => handleEmbedError());
 }
+
 
 function handleEmbedError() {
   document.getElementById('plyrContainer').style.display = 'none';
