@@ -69,7 +69,7 @@ from .models import TblContent
 #         c.embed_id = extract_youtube_id(c.content_url)
 
 #     return render(request, "content.html", {"contents": contents})
-def content(request):
+def content1(request):
     token = request.GET.get("token")
     contents = TblContent.objects.filter(is_deleted=False).order_by('-content_id')
 
@@ -97,8 +97,51 @@ def content(request):
         if token and c.content_code == token:
             auto_video_id = c.embed_id
 
-    return render(request, "content.html", {
+    return render(request, "content1.html", {
         "contents": contents,
         "auto_video_id": auto_video_id,
         "invalid_token": token if token and not auto_video_id else None
+    })
+
+def content(request):
+    token = request.GET.get("token")
+
+    if not token:   # token missing
+        return render(request, "video_player.html", {
+            "video_title": "Video Not Available",
+            "embed_id": None,
+            "invalid": True
+        })
+
+    content = TblContent.objects.filter(content_code=token, is_deleted=False).first()
+
+    if not content:  # token invalid
+        return render(request, "video_player.html", {
+            "video_title": "Video Not Available",
+            "embed_id": None,
+            "invalid": True
+        })
+
+    # extract YouTube ID
+    def extract_youtube_id(url):
+        if not url:
+            return None
+        patterns = [
+            r"v=([^&]+)",
+            r"youtu\.be/([^?&]+)",
+            r"embed/([^?&]+)",
+            r"shorts/([^?&]+)",
+        ]
+        for p in patterns:
+            m = re.search(p, url)
+            if m:
+                return m.group(1)
+        return None
+
+    embed_id = extract_youtube_id(content.content_url)
+
+    return render(request, "content.html", {
+        "video_title": content.content_title,
+        "embed_id": embed_id,
+        "invalid": False
     })

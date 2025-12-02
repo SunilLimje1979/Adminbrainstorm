@@ -1,224 +1,200 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ video_title }}</title>
 
 <!-- Plyr CSS -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
 <style>
-.card { border-radius: 12px; }
+/* NAVBAR */
+.navbar {
+    width: 100%;
+    background: #48408C;
+    padding: 15px 0;         
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
 
-/* Hide fallback background */
-.plyr__video-embed { background:#000; }
+    display: flex;
+    justify-content: center; /* CENTER CONTENT */
+    align-items: center;     /* Vertical center */
+    text-align: center;
+}
 
-/* Disable clicking inside YouTube iframe (prevents redirect / copy link) */
+.navbar h2 {
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* Page background */
+html, body {
+    background: #ffffffff !important;
+    margin: 50px 0 0 0;  
+    padding: 0;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+/* Title */
+.video-title {
+    font-size: 40px;
+    font-weight: bold;
+    padding: 10px 10px;
+    color: #000000ff;
+    margin-top: 10px; /* Extra space due to navbar */
+}
+
+/* Video wrapper */
+#playerWrapper {
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+    padding: 10px;
+}
+
+/* Player box background */
+#plyrContainer,
+.plyr,
+.plyr__video-wrapper,
+.plyr__video-embed {
+    background: #000 !important;
+    border-radius: 5px;
+}
+
+/* iframe background fix */
+iframe {
+    background: #000 !important;
+}
+
+/* Disable click inside iframe */
 #plyrContainer iframe {
     pointer-events: none !important;
 }
 
-/* Modal body styling */
-.modal-body.p-0 { padding:0; background:#000; }
+/* Error box */
+#embedError {
+    background: #b71c1c;
+    color: #fff;
+    border-radius: 8px;
+}
+
+/* Button inside error box */
+#openYoutubeBtn {
+    background: #262626;
+    color: #fff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#openYoutubeBtn:hover {
+    background: #333;
+}
+
+/* Hide player if token invalid */
+{% if invalid %}
+#playerWrapper {
+    display: none !important;
+}
+{% endif %}
 </style>
 
-<div class="content container-fluid">
-  <div class="page-header">
-    <div class="row">
-      <div class="col-sm-12"><h3 class="page-title">Content</h3></div>
-    </div>
-  </div>
+</head>
 
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-lg p-4">
-        <h4 class="text-center mb-4">Content List</h4>
-        {% if invalid_token %}
-          <div class="alert alert-danger text-center">
-            Invalid token! Video not found.
-          </div>
-        {% endif %}
+<body>
 
-        {% if contents %}
-        <table class="table table-bordered text-center">
-          <thead class="table-dark">
-            <tr>
-              <th>Code</th>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Category</th>
-              <th>Play</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in contents %}
-            <tr>
-              <td>{{ c.content_code }}</td>
-              <td>{{ c.content_title }}</td>
-
-              <td>
-                {% if c.content_type == 1 %} Audio
-                {% elif c.content_type == 2 %} Video
-                {% elif c.content_type == 3 %} PDF
-                {% elif c.content_type == 4 %} Image
-                {% else %} - {% endif %}
-              </td>
-
-              <td>
-                {% if c.content_category == 1 %} Poem
-                {% elif c.content_category == 2 %} Story
-                {% elif c.content_category == 3 %} Other
-                {% else %} - {% endif %}
-              </td>
-
-              <td>
-                {% if c.embed_id %}
-                  <button class="btn btn-primary btn-sm"
-                          onclick="openPlyrModal('{{ c.embed_id }}')">
-                    Play Video
-                  </button>
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% else %}
-        <p class="text-center text-muted">No content available.</p>
-        {% endif %}
-
-      </div>
-    </div>
-  </div>
+<!-- TOP NAVBAR -->
+<div class="navbar">
+    <h2>Brainstorm LMS</h2>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="videoModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body p-0">
+<!-- Title -->
+<div class="video-title">{{ video_title }}</div>
 
-        <!-- Plyr container -->
-        <div id="plyrContainer">
-          <div id="plyrPlayer" data-plyr-provider="youtube" data-plyr-embed-id=""></div>
+<!-- Video Area -->
+<div id="playerWrapper">
+    <div id="plyrContainer">
+        <div id="plyrPlayer"
+             data-plyr-provider="youtube"
+             data-plyr-embed-id="{{ embed_id }}">
         </div>
-
-        <!-- Restricted video fallback -->
-        <div id="embedError" style="display:none; padding:20px; background:#c62828; color:white;">
-          <p>This video cannot be played here. The uploader has blocked embedding.</p>
-          <button id="openYoutubeBtn" class="btn btn-light btn-sm">Open on YouTube</button>
-        </div>
-
-      </div>
     </div>
-  </div>
+
+    <div id="embedError" style="display:none; padding:20px;">
+        <p>This video cannot be played here. The uploader has blocked embedding.</p>
+        <button id="openYoutubeBtn">Open on YouTube</button>
+    </div>
 </div>
 
 <!-- Plyr JS -->
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
 <script>
 let plyrPlayer = null;
-let currentVideoId = null;
+let currentVideoId = "{{ embed_id }}";
 
-function openPlyrModal(videoId) {
-  currentVideoId = videoId;
-
-  document.getElementById('embedError').style.display = 'none';
-  document.getElementById('plyrContainer').style.display = 'block';
-
-  const modal = new bootstrap.Modal(document.getElementById('videoModal'));
-  modal.show();
-
-  setTimeout(initPlyr, 150);
-}
+document.addEventListener("DOMContentLoaded", function () {
+    // Only init Plyr if embed_id exists
+    if(currentVideoId) {
+        initPlyr();
+    }
+});
 
 function initPlyr() {
-  if (plyrPlayer) plyrPlayer.destroy();
+    if (plyrPlayer) plyrPlayer.destroy();
 
-  const container = document.getElementById('plyrContainer');
-  container.innerHTML = `
-    <div class="plyr__video-embed" id="plyrEmbed">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/${currentVideoId}?autoplay=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&origin=${window.location.origin}"
-        allow="autoplay; fullscreen; encrypted-media"
-        allowfullscreen
-        data-plyr-provider="youtube"
-        data-plyr-embed-id="${currentVideoId}">
-      </iframe>
-    </div>
-  `;
+    const container = document.getElementById('plyrContainer');
+    container.innerHTML = `
+        <div class="plyr__video-embed" id="plyrEmbed">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/${currentVideoId}?autoplay=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&playsinline=1&fs=0&enablejsapi=1&origin=${window.location.origin}"
+              allow="autoplay; fullscreen; encrypted-media"
+              allowfullscreen>
+            </iframe>
+        </div>
+    `;
 
-  plyrPlayer = new Plyr('#plyrEmbed', {
-    controls: [
-      'play',
-      'progress',
-      'current-time',
-      'mute',
-      'volume',
-      'settings',
-      'fullscreen'   // <-- enable fullscreen button
-    ],
-    settings: ['quality', 'speed'],
-    speed: {
-      selected: 1,
-      options: [0.5, 0.75, 1, 1.25, 1.5, 2]
-    },
-    quality: {
-      default: 1080,
-      options: [144, 240, 360, 480, 720, 1080],
-      forced: true,
-      onChange: (quality) => {
-        try {
-          let iframe = document.querySelector('#plyrEmbed iframe');
-          let player = iframe.contentWindow;
-          player.postMessage(JSON.stringify({
-            event: "command",
-            func: "setPlaybackQuality",
-            args: [quality + "p"]
-          }), "*");
-        } catch (e) {
-          console.warn("Quality change not supported by YouTube embed.");
+    plyrPlayer = new Plyr('#plyrEmbed', {
+        controls: [
+          'play','progress','current-time','mute','volume','settings','fullscreen'
+        ],
+        settings: ['quality','speed'],
+        speed: { options: [0.5,0.75,1,1.25,1.5,2] },
+        quality: {
+            default: 1080,
+            options: [144,240,360,480,720,1080],
+            forced: true,
+            onChange: (q)=> {
+                try {
+                    let iframe = document.querySelector('#plyrEmbed iframe');
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        event: "command",
+                        func: "setPlaybackQuality",
+                        args: [q + "p"]
+                    }), "*");
+                } catch (e) {}
+            }
         }
-      }
-    },
-    youtube: { noCookie: true }
-  });
+    });
 
-  // Start playback immediately
-  plyrPlayer.play().catch(() => {
-    console.warn("Autoplay might be blocked by browser.");
-  });
-
-  plyrPlayer.on('error', () => handleEmbedError());
+    plyrPlayer.on('error', () => handleEmbedError());
 }
-
 
 function handleEmbedError() {
-  document.getElementById('plyrContainer').style.display = 'none';
-  document.getElementById('embedError').style.display = 'block';
+    document.getElementById('plyrContainer').style.display = 'none';
+    document.getElementById('embedError').style.display = 'block';
 
-  document.getElementById('openYoutubeBtn').onclick = function () {
-    window.open("https://www.youtube.com/watch?v=" + currentVideoId, "_blank");
-  };
+    document.getElementById('openYoutubeBtn').onclick = function () {
+        window.open("https://www.youtube.com/watch?v=" + currentVideoId, "_blank");
+    };
 }
-
-document.getElementById('videoModal').addEventListener('hidden.bs.modal', () => {
-  if (plyrPlayer) plyrPlayer.destroy();
-  plyrPlayer = null;
-});
-
-
-// Auto open when token matches content_code
-{% if auto_video_id %}
-document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(function() {
-        openPlyrModal("{{ auto_video_id }}");
-    }, 500);
-});
-{% endif %}
-
 </script>
 
-
-{% endblock content %}
+</body>
+</html>
