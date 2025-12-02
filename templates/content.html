@@ -30,6 +30,11 @@
     <div class="col-md-8">
       <div class="card shadow-lg p-4">
         <h4 class="text-center mb-4">Content List</h4>
+        {% if invalid_token %}
+          <div class="alert alert-danger text-center">
+            Invalid token! Video not found.
+          </div>
+        {% endif %}
 
         {% if contents %}
         <table class="table table-bordered text-center">
@@ -205,6 +210,17 @@ document.getElementById('videoModal').addEventListener('hidden.bs.modal', () => 
   if (plyrPlayer) plyrPlayer.destroy();
   plyrPlayer = null;
 });
+
+
+// Auto open when token matches content_code
+{% if auto_video_id %}
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function() {
+        openPlyrModal("{{ auto_video_id }}");
+    }, 500);
+});
+{% endif %}
+
 </script>
 
 

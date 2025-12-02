@@ -47,17 +47,40 @@ import re
 from django.shortcuts import render
 from .models import TblContent
 
+# def content(request):
+#     contents = TblContent.objects.filter(is_deleted=False).order_by('-content_id')
+
+#     def extract_youtube_id(url):
+#         if not url:
+#             return None
+#         patterns = [
+#             r"v=([^&]+)",             # watch?v=
+#             r"youtu\.be/([^?&]+)",    # youtu.be/abcd
+#             r"embed/([^?&]+)",        # embed/abcd
+#             r"shorts/([^?&]+)",       # shorts/abcd
+#         ]
+#         for p in patterns:
+#             m = re.search(p, url)
+#             if m:
+#                 return m.group(1)
+#         return None
+
+#     for c in contents:
+#         c.embed_id = extract_youtube_id(c.content_url)
+
+#     return render(request, "content.html", {"contents": contents})
 def content(request):
+    token = request.GET.get("token")
     contents = TblContent.objects.filter(is_deleted=False).order_by('-content_id')
 
     def extract_youtube_id(url):
         if not url:
             return None
         patterns = [
-            r"v=([^&]+)",             # watch?v=
-            r"youtu\.be/([^?&]+)",    # youtu.be/abcd
-            r"embed/([^?&]+)",        # embed/abcd
-            r"shorts/([^?&]+)",       # shorts/abcd
+            r"v=([^&]+)",
+            r"youtu\.be/([^?&]+)",
+            r"embed/([^?&]+)",
+            r"shorts/([^?&]+)",
         ]
         for p in patterns:
             m = re.search(p, url)
@@ -65,7 +88,17 @@ def content(request):
                 return m.group(1)
         return None
 
+    auto_video_id = None  # for auto popup
+
     for c in contents:
         c.embed_id = extract_youtube_id(c.content_url)
 
-    return render(request, "content.html", {"contents": contents})
+        # Check token → auto popup video
+        if token and c.content_code == token:
+            auto_video_id = c.embed_id
+
+    return render(request, "content.html", {
+        "contents": contents,
+        "auto_video_id": auto_video_id,
+        "invalid_token": token if token and not auto_video_id else None
+    })
