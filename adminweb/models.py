@@ -19,7 +19,7 @@ class TblUser(models.Model):
     user_profilephoto = models.TextField(null=True,blank=True) #to add image link
     user_username = models.CharField(max_length=255,null=True,blank=True)
     user_password = models.CharField(max_length=255,null=True,blank=True)
-    user_role =  models.IntegerField(null=True,blank=True) #0=Admin,1=Teacher,2=Student,3=SuperAdmin
+    user_role =  models.IntegerField(null=True,blank=True) #0=Superadmin(Developer),1=Admin User (BI),3=Operator,4=School admin 5=School operator 6=Teacher 7= Parent 8=Student
 
     #############Bydefault fields####################
     created_on = models.DateTimeField(auto_now_add=True)
@@ -170,3 +170,82 @@ class TblTeacherAcademics(models.Model):
             models.Index(fields=['academic_year']),
             models.Index(fields=['is_deleted']),
         ]
+############################################################################################
+# class TblCourse(models.Model):
+#     course_id = models.AutoField(primary_key=True)
+#     course_title = models.CharField(max_length=255, null=True, blank=True)
+#     course_description = models.TextField(null=True, blank=True)
+#     course_subject = models.CharField(max_length=255, null=True, blank=True)
+#     course_lock = models.IntegerField(default=0, null=True, blank=True)    # 0 = unlocked, 1 = locked
+#     course_duration = models.CharField(max_length=255, null=True, blank=True)
+#     course_validity = models.CharField(max_length=255, null=True, blank=True)
+#     course_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+#     course_base_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+#     course_scratch_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+#     course_image_url = models.CharField(max_length=500, null=True, blank=True)
+#     course_rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+#     course_order = models.IntegerField(null=True, blank=True)
+#     course_tagline = models.CharField(max_length=255, null=True, blank=True)
+#     course_for = models.CharField(max_length=50, null=True, blank=True)    # student or teacher
+#     course_for_description = models.TextField(null=True, blank=True)
+#     course_type = models.CharField(max_length=50, null=True, blank=True)# online or offline
+
+#     ############# Bydefault fields ####################
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     created_by = models.IntegerField(null=True, blank=True)
+#     last_modified_on = models.DateTimeField(auto_now=True)
+#     last_modified_by = models.IntegerField(null=True, blank=True)
+#     is_deleted = models.BooleanField(default=False)
+#     deleted_by = models.IntegerField(null=True, blank=True)
+#     deleted_reason = models.CharField(max_length=100, blank=True, null=True)
+
+#     class Meta:
+#         db_table='TblCourse'
+        
+        
+# ##################################################### Topic #######################################
+# class TblCourseTopic(models.Model):
+#     topic_id = models.AutoField(primary_key=True)
+#     topic_code = models.CharField(max_length=255, null=True, blank=True)
+#     topic_title = models.CharField(max_length=255, null=True, blank=True)
+#     topic_description = models.TextField(null=True, blank=True)
+#     topic_image = models.TextField(null=True,blank=True)
+#     course = models.ForeignKey(TblCourse,on_delete=models.CASCADE,null=True, blank=True,related_name="TblTopic_course_id")
+#     topic_duration = models.CharField(max_length=255, null=True, blank=True)
+#     topic_takeaway = models.TextField(null=True, blank=True)
+#     topic_content_type = models.CharField(max_length=255, null=True, blank=True)
+#     topic_content_url = models.CharField(max_length=500, null=True, blank=True)
+
+#     ############# Bydefault fields ####################
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     created_by = models.IntegerField(null=True, blank=True)
+#     last_modified_on = models.DateTimeField(auto_now=True)
+#     last_modified_by = models.IntegerField(null=True, blank=True)
+#     is_deleted = models.BooleanField(default=False)
+#     deleted_by = models.IntegerField(null=True, blank=True)
+#     deleted_reason = models.CharField(max_length=100, blank=True, null=True)
+
+#     class Meta:
+#         db_table = 'TblCourseTopic'
+        
+        
+#################################### #####################################
+class TblContent(models.Model):
+    content_id = models.AutoField(primary_key=True)
+    content_code = models.CharField(max_length=32, null=True, blank=True)
+    content_type = models.IntegerField(null=True, blank=True)# 1=Audio, 2=Video, 3=PDF, 4=Image
+    content_category = models.IntegerField(null=True, blank=True) # 1=Poem, 2=Story, 3=Other
+    content_title = models.CharField(max_length=255, null=True, blank=True)
+    content_url = models.CharField(max_length=500, null=True, blank=True)
+
+    ############# Bydefault fields ####################
+    created_on = models.DateTimeField(auto_now_add=True)
+    created_by = models.IntegerField(null=True, blank=True)
+    last_modified_on = models.DateTimeField(auto_now=True)
+    last_modified_by = models.IntegerField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_by = models.IntegerField(null=True, blank=True)
+    deleted_reason = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = 'TblContent'
