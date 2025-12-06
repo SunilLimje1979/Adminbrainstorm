@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 import requests
@@ -107,7 +107,7 @@ def content(request):
     token = request.GET.get("token")
 
     if not token:   # token missing
-        return render(request, "video_player.html", {
+        return render(request, "content.html", {
             "video_title": "Video Not Available",
             "embed_id": None,
             "invalid": True
@@ -116,7 +116,7 @@ def content(request):
     content = TblContent.objects.filter(content_code=token, is_deleted=False).first()
 
     if not content:  # token invalid
-        return render(request, "video_player.html", {
+        return render(request, "content.html", {
             "video_title": "Video Not Available",
             "embed_id": None,
             "invalid": True
@@ -145,3 +145,66 @@ def content(request):
         "embed_id": embed_id,
         "invalid": False
     })
+
+################################## Content ###################################
+############################ Add Content #########################################
+def add_content(request):
+    if request.method == "POST":
+        try:
+            content_type = request.POST.get("content_type")
+            content_category = request.POST.get("content_category")
+            content_title = request.POST.get("content_title")
+            content_url = request.POST.get("content_url")
+            content_code = request.POST.get("content_code")
+            
+            # Validation
+            if not content_title:
+                messages.error(request, "Content title is required.")
+                return redirect("add_content")
+
+            # Save record
+            TblContent.objects.create(
+                content_code=content_code,
+                content_type=content_type,
+                content_category=content_category,
+                content_title=content_title,
+                content_url=content_url,
+                created_by=request.session.get("user_id", None),
+            )
+
+            messages.success(request, "Content added successfully!")
+            return redirect("content_list")
+
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+
+    return render(request, "content/add_content.html")
+
+
+def content_list(request):
+    data = TblContent.objects.filter(is_deleted=False).order_by('-content_id')
+    return render(request, "content/content_list.html", {"data": data})
+
+def edit_content(request, id):
+    content = get_object_or_404(TblContent, content_id=id)
+
+    if request.method == "POST":
+        content.content_code = request.POST.get("content_code")
+        content.content_type = request.POST.get("content_type")
+        content.content_category = request.POST.get("content_category")
+        content.content_title = request.POST.get("content_title")
+        content.content_url = request.POST.get("content_url")
+        content.save()
+
+        messages.success(request, "Content updated successfully!")
+        return redirect("content_list")
+
+    return render(request, "content/edit_content.html", {"content": content})
+
+def delete_content(request, id):
+    content = get_object_or_404(TblContent, content_id=id)
+    content.is_deleted = True
+    content.save()
+
+    messages.success(request, "Content deleted successfully!")
+    return redirect("content_list")

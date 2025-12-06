@@ -1,0 +1,115 @@
+<style>
+    .select2-container .select2-selection--single {
+        height: 40px !important; /* Adjust the height as needed */
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px !important; /* Ensures text is vertically centered */
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important; /* Adjust the dropdown arrow height */
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+    
+</style>
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content container-fluid" style="margin:5px; padding:5px;">
+    <div class="page-header" style="margin:10px;">
+        <div class="row align-items-center">
+            <div class="col">
+               <h6 class="page-title">Add Content</h6>
+            </div>
+        </div>
+    </div>
+
+    {% include "includes/message.html" %}
+
+    <div class="row">
+      <div class="col-sm-12">
+          <div class="card">
+            <div class="card-header text-white" style="background-color: #41c0d8;"
+">
+                Content Registration
+            </div>
+
+            <div class="card-body" style="margin: 0; padding: 5px;">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Code</label>
+                                <input type="text" class="form-control" name="content_code">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Content Type</label>
+                                <select class="form-control select2" name="content_type" required>
+                                    <option value="">Select</option>
+                                    <option value="1">Audio</option>
+                                    <option value="2">Video</option>
+                                    <option value="3">PDF</option>
+                                    <option value="4">Image</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-control select2" name="content_category">
+                                    <option value="">Select</option>
+                                    <option value="1">Poem</option>
+                                    <option value="2">Story</option>
+                                    <option value="3">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Content Title</label>
+                                <input type="text" class="form-control" name="content_title" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Content URL</label>
+                                <input type="text" class="form-control" name="content_url">
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary" style="background-color: rgb(41, 39, 122);">
+                                Add
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+          </div>
+      </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Select from dropdown",
+            allowClear: true
+        });
+    });
+</script>
+
+{% endblock content %}
